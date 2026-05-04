@@ -11,8 +11,15 @@ import React, {
 
 import { CameraShake } from '@react-three/drei';
 import { useThree } from '@react-three/fiber';
-import { buttonGroup, useControls,type useCreateStore } from 'leva';
-import { Group, MathUtils, Mesh, Vector3 } from 'three';
+import { buttonGroup, useControls, type useCreateStore } from 'leva';
+import {
+  Box3,
+  Group,
+  MathUtils,
+  Mesh,
+  PerspectiveCamera,
+  Vector3,
+} from 'three';
 
 import { rigCameraAnimation } from '@/animations/home';
 import { BREAK_POINTS, IS_DEV } from '@/constants/common';
@@ -23,6 +30,7 @@ import {
   HOME_WORLD_SCENE_NAME_DOOR_CONTAINER,
   HOME_WORLD_SCENE_NAME_MODELS,
   HOME_WORLD_SCENE_NAME_ROOM,
+  HOME_WORLD_SCENE_NAME_WATER,
 } from '@/constants/home';
 import { useWindowSize } from '@/hooks';
 
@@ -38,6 +46,90 @@ type Props = {
 
   /** カメラが扉を通過した際の屋内状態変化コールバック */
   onInsideRoomChange: (isInside: boolean) => void;
+};
+
+type PortalFrame = Readonly<{
+  left: number;
+  right: number;
+  bottom: number;
+  top: number;
+  padding: number;
+  minDistance: number;
+}>;
+
+const PORTAL_MODEL_FRAME_DESKTOP: PortalFrame = {
+  left: 0.16,
+  right: 0.92,
+  bottom: -0.72,
+  top: 0.72,
+  padding: 1.08,
+  minDistance: 4,
+};
+
+const PORTAL_MODEL_FRAME_MOBILE: PortalFrame = {
+  left: -0.78,
+  right: 0.78,
+  bottom: -0.94,
+  top: -0.12,
+  padding: 1.12,
+  minDistance: 4,
+};
+
+const box = new Box3();
+const boxCenter = new Vector3();
+const boxSize = new Vector3();
+
+const getPortalFrame = (width: number): PortalFrame =>
+  width >= BREAK_POINTS.SM
+    ? PORTAL_MODEL_FRAME_DESKTOP
+    : PORTAL_MODEL_FRAME_MOBILE;
+
+const getFramedPortalCameraPosition = ({
+  camera,
+  target,
+  frame,
+  aspect,
+  fallback,
+}: {
+  camera: PerspectiveCamera;
+  target: Group;
+  frame: PortalFrame;
+  aspect: number;
+  fallback: Vector3;
+}): Vector3 => {
+  box.makeEmpty();
+  target.children.forEach((child) => {
+    if (child.name === HOME_WORLD_SCENE_NAME_WATER) return;
+    box.expandByObject(child, true);
+  });
+
+  if (box.isEmpty()) return fallback.clone();
+
+  box.getCenter(boxCenter);
+  box.getSize(boxSize);
+
+  const verticalFov = MathUtils.degToRad(camera.fov);
+  const tanVertical = Math.tan(verticalFov / 2);
+  const tanHorizontal = tanVertical * aspect;
+  const frameWidth = Math.max(frame.right - frame.left, 0.01);
+  const frameHeight = Math.max(frame.top - frame.bottom, 0.01);
+  const distanceForWidth =
+    boxSize.x / (frameWidth * tanHorizontal) + boxSize.z * 0.5;
+  const distanceForHeight =
+    boxSize.y / (frameHeight * tanVertical) + boxSize.z * 0.5;
+  const nearDistance =
+    Math.max(distanceForWidth, distanceForHeight, frame.minDistance) *
+    frame.padding;
+  const z = box.max.z + nearDistance;
+  const distanceToCenter = z - boxCenter.z;
+  const targetX = (frame.left + frame.right) / 2;
+  const targetY = (frame.bottom + frame.top) / 2;
+
+  return new Vector3(
+    boxCenter.x - targetX * distanceToCenter * tanHorizontal,
+    boxCenter.y - targetY * distanceToCenter * tanVertical,
+    z,
+  );
 };
 
 const RigCamera = React.memo(
@@ -272,10 +364,27 @@ const RigCamera = React.memo(
       )
         return;
 
+      const portalModelsY = IS_DEV
+        ? debugModelsOffsetY
+        : currentBpConfig.modelsOffsetY;
+
+      models.position.y = portalModelsY;
+      models.updateWorldMatrix(true, true);
+
       /** カメラの開始位置を取得 */
-      const startPos = IS_DEV
-        ? new Vector3(debugStartX, debugStartY, debugStartZ)
-        : currentBpConfig.start.clone();
+      const debugStartPos = new Vector3(debugStartX, debugStartY, debugStartZ);
+      const shouldUseDebugStart =
+        IS_DEV && !debugStartPos.equals(currentBpConfig.start);
+      const startPos =
+        shouldUseDebugStart || !(camera instanceof PerspectiveCamera)
+          ? debugStartPos
+          : getFramedPortalCameraPosition({
+              camera,
+              target: models,
+              frame: getPortalFrame(width),
+              aspect: width / height,
+              fallback: currentBpConfig.start,
+            });
 
       /** カメラの終了位置を取得 */
       const endPos = IS_DEV
