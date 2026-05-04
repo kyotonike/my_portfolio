@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useCallback, useReducer, useRef, useState } from 'react';
-import type { JSX } from 'react';
 import dynamic from 'next/dynamic';
+
+import type { JSX } from 'react';
 
 import { Loading, PageHeader } from '@/components/common';
 import { Controls, Introduction, Portal } from '@/components/works/workThreeD';
@@ -49,6 +50,9 @@ const initialState: WorkThreeDState = {
 
   /** カメラアニメーション完了フラグ（false: アニメーション中 / true: 完了してアニメーション再生可） */
   isCameraReady: false,
+
+  /** Canvas を Portal セクションから開始 */
+  canvasSection: 'portal',
 };
 
 /**
@@ -75,6 +79,8 @@ const workThreeDReducer = (
       return { ...state, isFingerVisible: action.payload };
     case 'SET_CURRENT_INDEX':
       return { ...state, currentIndex: action.payload };
+    case 'SET_CANVAS_SECTION':
+      return { ...state, canvasSection: action.payload };
     case 'SET_VIEWER_STATUS':
       return {
         ...state,
@@ -144,6 +150,7 @@ const WorkThreeDClient = ({ content }: Props): JSX.Element => {
         viewerStatus={state.viewerStatus}
         currentIndex={state.currentIndex}
         isCameraReady={state.isCameraReady}
+        canvasSection={state.canvasSection}
         dispatch={dispatch}
         portalRef={portalRef}
         introductionRef={introductionRef}

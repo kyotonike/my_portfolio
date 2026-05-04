@@ -1,10 +1,10 @@
 import { WORK_WORLD_ENV_COLORS } from '@/constants/colors';
 import { BREAK_POINTS } from '@/constants/common';
 import {
-  type CameraParams,
   type DebugAmbientLightParams,
   type DebugCameraParams,
   type DebugDirectionalLightParams,
+  type WorkWorldFrameConfig,
   type WorkWorldSectionsCameraParams,
 } from '@/types/world';
 
@@ -23,78 +23,38 @@ export const WORK_WORLD_SECTION_MAP = {
   Sec3: 'controls',
 } as const;
 
-/** セクションカメラのブレークポイント設定 */
-export const WORK_WORLD_SECTION_CAMERA_BREAKPOINTS = [
-  { min: -Infinity, max: BREAK_POINTS.XS, prefix: /^Cam_BP_XS_(.+)_0(_.+)?$/ },
-  {
-    min: BREAK_POINTS.XS,
-    max: BREAK_POINTS.SM,
-    prefix: /^Cam_BP_SM_(.+)_0(_.+)?$/,
-  },
-  {
-    min: BREAK_POINTS.SM,
-    max: BREAK_POINTS.LG,
-    prefix: /^Cam_BP_LG_(.+)_0(_.+)?$/,
-  },
-  {
-    min: BREAK_POINTS.LG,
-    max: BREAK_POINTS.XL,
-    prefix: /^Cam_BP_XL_(.+)_0(_.+)?$/,
-  },
-  {
-    min: BREAK_POINTS.XL,
-    max: BREAK_POINTS['2XL'],
-    prefix: /^Cam_BP_2XL_(.+)_0(_.+)?$/,
-  },
-  {
-    min: BREAK_POINTS['2XL'],
-    max: Infinity,
-    prefix: /^Cam_BP_3XL_(.+)_0(_.+)?$/,
-  },
-] as const;
+export const WORK_WORLD_CAMERA_FOV = {
+  XS: 50,
+  SM: 45,
+  DEFAULT: 26.9915,
+} as const;
 
-/** ビューワーモード切り替え用カメラのブレークポイント設定 */
-export const WORK_WORLD_VIEWER_TOGGLE_CAMERA_BREAKPOINTS = [
-  {
-    min: -Infinity,
-    max: BREAK_POINTS.XS,
-    prefix: /^Cam_BP_XS(_Offset)?_Sec2_0$/,
-    zoom: -18,
-  },
-  {
-    min: BREAK_POINTS.XS,
-    max: BREAK_POINTS.SM,
-    prefix: /^Cam_BP_SM(_Offset)?_Sec2_0$/,
-    zoom: -2.5,
-  },
-  {
-    min: BREAK_POINTS.SM,
-    max: BREAK_POINTS.LG,
-    prefix: /^Cam_BP_LG(_Offset)?_Sec2_0$/,
-    zoom: 1,
-  },
-  {
-    min: BREAK_POINTS.LG,
-    max: BREAK_POINTS.XL,
-    prefix: /^Cam_BP_XL(_Offset)?_Sec2_0$/,
-    zoom: 2,
-  },
-  {
-    min: BREAK_POINTS.XL,
-    max: BREAK_POINTS['2XL'],
-    prefix: /^Cam_BP_2XL(_Offset)?_Sec2_0$/,
-    zoom: 1.0,
-  },
-  {
-    min: BREAK_POINTS['2XL'],
-    max: Infinity,
-    prefix: /^Cam_BP_3XL(_Offset)?_Sec2_0$/,
-    zoom: 0.6,
-  },
-] as const;
+export const WORK_WORLD_FRAME_CONFIG: WorkWorldFrameConfig = {
+  portal: { targetPercent: 0.9, axis: 'auto', targetMeshPrefix: 'SM' },
+  introduction: { targetPercent: 0.9, axis: 'auto', targetMeshPrefix: 'SM' },
+  controls: { targetPercent: 0.9, axis: 'auto', targetMeshPrefix: 'SM' },
+};
 
-/** カメラ名からブレークポイント名を抽出する正規表現 */
-export const BP_REGEX = /^Cam_BP_(3XL|2XL|XL|LG|SM|XS)_(?:Offset_)?(.+)_Sec3$/;
+export const AUTO_FRAME_CAMERA_NAMES = {
+  portal: 'Cam_Sec1_0',
+  introduction: 'Cam_Sec2_0',
+  controls: 'Cam_Sec3_0',
+} as const;
+
+export const AUTO_FRAME_TARGET_NAMES = {
+  portal: 'Target_Sec1',
+  introduction: 'Target_Sec2',
+  controls: 'Target_Sec3',
+} as const;
+
+export const VIEWER_TOGGLE_ZOOM_CONFIG = [
+  { min: -Infinity, max: BREAK_POINTS.XS, zoom: -18 },
+  { min: BREAK_POINTS.XS, max: BREAK_POINTS.SM, zoom: -2.5 },
+  { min: BREAK_POINTS.SM, max: BREAK_POINTS.LG, zoom: 1 },
+  { min: BREAK_POINTS.LG, max: BREAK_POINTS.XL, zoom: 2 },
+  { min: BREAK_POINTS.XL, max: BREAK_POINTS['2XL'], zoom: 1.0 },
+  { min: BREAK_POINTS['2XL'], max: Infinity, zoom: 0.6 },
+] as const;
 
 /** ============================================
  *  デバッグ用パラメータ（Leva）
@@ -130,64 +90,18 @@ export const DEFAULT_SECTION_CAMERA_PARAMS: WorkWorldSectionsCameraParams = {
   portal: {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0 },
-    viewOffset: {
-      fullWidth: 0,
-      fullHeight: 0,
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-    },
   },
   introduction: {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0 },
-    viewOffset: {
-      fullWidth: 0,
-      fullHeight: 0,
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-    },
   },
   controls: {
     position: { x: 0, y: 0, z: 0 },
     rotation: { x: 0, y: 0, z: 0 },
-    viewOffset: {
-      fullWidth: 0,
-      fullHeight: 0,
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-    },
   },
 } as const;
 
 /** デフォルトのビュワーモード切り替えカメラパラメータ */
-export const DEFAULT_VIEWER_TOGGLE_CAMERA_PARAMS: CameraParams = {
-  position: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0 },
-  viewOffset: { fullWidth: 0, fullHeight: 0, x: 0, y: 0, width: 0, height: 0 },
-} as const;
-
-/** Controls カメラ用デフォルト ViewOffset */
-export const DEFAULT_CONTROLS_VIEW_OFFSET = {
-  fullWidth: 0,
-  fullHeight: 0,
-  x: 0,
-  y: 0,
-  width: 0,
-  height: 0,
-} as const;
-
-/** Controls カメラ用デフォルトパラメータ */
-export const DEFAULT_CONTROLS_CAMERA_PARAMS: CameraParams = {
-  position: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0 },
-  viewOffset: { fullWidth: 0, fullHeight: 0, x: 0, y: 0, width: 0, height: 0 },
-} as const;
 
 /** ============================================
  *  FingerPress
@@ -217,7 +131,7 @@ export const WORK_THREE_D_FINGER_PRESS_TEXT =
  * ============================================ */
 
 /**
- * 3Dビュワーを開始するトグルボタンのラベル。
+ * 3Dビュワを開始するトグルボタンのラベル。
  */
 export const WORK_THREE_D_TOGGLE_START_LABEL = 'Start' as const;
 
@@ -348,13 +262,13 @@ export const REVERSE_COMPLETE_DURATION = 2 as const;
 /** セクション ScrollTrigger スクラブ係数 */
 export const SECTION_ANIMATION_SCRUB = 0.7 as const;
 
-/** セクション補間アニメーションの時間 (秒) */
+/** セクション補間アニメーショの時間 (秒) */
 export const SECTION_ANIMATION_DURATION = 0.7 as const;
 
 /** Controls カメラ移動アニメーションの時間 (秒) */
 export const CONTROLS_ANIMATION_DURATION = 2 as const;
 
-/** Controls カメラ位置アニメーションの遅延 (秒) */
+/** Controls カメラ位置アニメーショの遅延 (秒) */
 export const CONTROLS_ANIMATION_DELAY = 0.5 as const;
 
 /** ビュワーモード開始時のカメラアニメーション時間 (秒) */

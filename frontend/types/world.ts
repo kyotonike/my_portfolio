@@ -7,6 +7,7 @@ import {
 } from 'three';
 
 import { type WORK_WORLD_SECTION_MAP } from '@/constants/workThreeD';
+import type { WorkControl } from '@/types/api';
 
 /** Common 3D Types */
 /**
@@ -48,29 +49,8 @@ export type ModelChildren = Array<
 >;
 
 /** Camera Types */
-/**
- * カメラのビューポートオフセット。
- * Three.js の `Camera.setViewOffset` に渡すパラメータを Plain Object で保持する。
- */
-export type ViewOffset = {
-  /** ビューポート全体の幅（px） */
-  fullWidth: number;
-
-  /** ビューポート全体の高さ（px） */
-  fullHeight: number;
-
-  /** オフセット始点の X 座標（px） */
-  x: number;
-
-  /** オフセット始点の Y 座標（px） */
-  y: number;
-
-  /** レンダリング領域の幅（px） */
-  width: number;
-
-  /** レンダリング領域の高さ（px） */
-  height: number;
-};
+/** Canvas を表示する Work 個別ページ内のセクション。 */
+export type CanvasSection = 'portal' | 'introduction' | 'controls';
 
 /**
  * カメラの基本パラメータ。
@@ -83,8 +63,6 @@ export type CameraParams = {
   /** カメラの初期回転角 */
   rotation: Rotation;
 
-  /** カメラのビューポートオフセット設定 */
-  viewOffset: ViewOffset;
 };
 
 /** Work World Specific Types */
@@ -118,7 +96,7 @@ export type WorkWorldSectionsCameraParams = {
  * ビューワー表示・非表示の切り替えアニメーションに使用する。
  */
 export type WorkWorldViewerToggleCameraParams = {
-  /** ビュワー切り替え後のカメラパラメータ */
+  /** ビュワー切り替え後のカメララメータ */
   cameraParams: CameraParams;
 
   /** カメラのズーム倍率 */
@@ -142,8 +120,6 @@ export type ControlCameraConfig = {
   /** カメラの目標回転角 */
   rotation: Rotation;
 
-  /** カメラのビューポートオフセット設定 */
-  viewOffset: ViewOffset;
 };
 
 /** `ControlCameraConfig` の配列型。Controls セクションのカメラ設定リスト。 */
@@ -158,8 +134,16 @@ export type GenerateControlsResult = {
   /** GLB 数値インデックス順のカメラ設定リスト */
   configs: ControlCameraConfigs;
   /** configs と同順にソートされた Controls データリスト */
-  sortedControls: import('@/types/api').WorkControl[];
+  sortedControls: WorkControl[];
 };
+
+export type SectionFrameConfig = {
+  targetPercent: number;
+  axis: 'height' | 'width' | 'auto';
+  targetMeshPrefix?: string;
+};
+
+export type WorkWorldFrameConfig = Record<CanvasSection, SectionFrameConfig>;
 
 /** Debug Types */
 /**

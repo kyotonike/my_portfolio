@@ -1,6 +1,6 @@
 import type React from 'react';
 
-import { WorkCategory } from '@/types/api';
+import type { CanvasSection } from '@/types/world';
 
 /** HomeContextType の型定義 */
 export type HomeContextType = {
@@ -49,6 +49,9 @@ export type WorkThreeDState = {
 
   /** カメラアニメーション完了フラグ（true: 完了済み → モデルアニメーション再生可） */
   isCameraReady: boolean;
+
+  /** Canvas を表示するセクション */
+  canvasSection: CanvasSection;
 };
 
 /**
@@ -62,6 +65,7 @@ export type WorkThreeDAction =
   | { type: 'SET_START_CONTROLS'; payload: boolean }
   | { type: 'SET_FINGER_VISIBLE'; payload: boolean }
   | { type: 'SET_CURRENT_INDEX'; payload: number }
+  | { type: 'SET_CANVAS_SECTION'; payload: CanvasSection }
   /** viewerStatus を更新する。active 遷移時は isFingerVisible を true にリセットする */
   | { type: 'SET_VIEWER_STATUS'; payload: ViewerStatus }
   /** isInitialControl を false にし currentIndex を payload に更新する */

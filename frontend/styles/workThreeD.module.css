@@ -16,13 +16,36 @@
 }
 
 .canvas {
-  position: fixed;
+  position: absolute;
+  pointer-events: auto;
+  transition:
+    top 0.35s ease,
+    right 0.35s ease,
+    bottom 0.35s ease,
+    left 0.35s ease,
+    width 0.35s ease,
+    height 0.35s ease;
+}
+
+.canvas_portal {
   top: 0;
-  bottom: 0;
-  right: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas_introduction {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60vh;
+}
+
+.canvas_controls {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 55vh;
 }
 
 /* PageHeader */
@@ -55,6 +78,22 @@
 }
 
 @media screen and (min-width: 1024px) {
+  .canvas_introduction {
+    top: 0;
+    right: 0;
+    left: auto;
+    width: 55vw;
+    height: 100vh;
+  }
+
+  .canvas_controls {
+    top: 0;
+    right: auto;
+    left: 0;
+    width: 55vw;
+    height: 100vh;
+  }
+
   .figure {
     aspect-ratio: 16/9;
   }

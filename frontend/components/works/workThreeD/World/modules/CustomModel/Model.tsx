@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import type { Dispatch, JSX, SetStateAction } from 'react';
 
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { AnimationMixer, FrontSide, LoopOnce } from 'three';
+import type { Dispatch, JSX, SetStateAction } from 'react';
+
 import type {
   AnimationAction,
-  AnimationClip,
+ AnimationClip,
   Group,
   Mesh,
   Object3D,
 } from 'three';
+import { AnimationMixer, FrontSide, LoopOnce } from 'three';
 
 import { DRACO_DECODER_PATH } from '@/constants/common';
 import {
@@ -37,7 +38,7 @@ type Props = {
   /** 現在選択中のコントロールインデックス */
   currentIndex: number;
 
-  /** カメラアニメーション完了フラグ（true: 完了済み → モデルアニメーション再生可） */
+  /** カメアニメーション完了フラグ（true: 完了済み → モデルアニメーション再生可） */
   isCameraReady: boolean;
 };
 
@@ -63,7 +64,6 @@ const Model = React.memo(
   ({
     content,
     setModelChildren,
-    isInitialControl,
     isStartControls,
     currentIndex,
     isCameraReady,
@@ -118,24 +118,25 @@ const Model = React.memo(
     }, [gltf, content.key, content.controls]);
 
     /**
-     * GLB シーン内 Cam_BP_*_Sec3_<n>_<name> カメラ名を走査して
+     * GLB シーン内 Cam_Sec3_<n> カメラ名を走査して
      * 数値インデックス <n> 順にソートしたアニメーション名リストを生成する。
      * このリストが currentIndex の正規順序になる。
      */
     const sortedAnimationNames = useMemo((): string[] => {
-      const regex = /^Cam_BP_[^_]+_Sec3_(\d+)_(.+)$/;
+      const regex = /^Cam_Sec3_(\d+)$/;
       const found: { n: number; name: string }[] = [];
       gltf.scene.traverse((child: Object3D) => {
         const match = child.name.match(regex);
         if (match) {
           const n = parseInt(match[1], 10);
-          if (!found.some((f) => f.n === n)) {
-            found.push({ n, name: match[2] });
+          const name = content.controls[n]?.animation_name;
+          if (name && !found.some((f) => f.n === n)) {
+            found.push({ n, name });
           }
         }
       });
       return found.sort((a, b) => a.n - b.n).map((f) => f.name);
-    }, [gltf]);
+    }, [content.controls, gltf]);
 
     /** 裏面を非表示 */
     useEffect(() => {

@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useCallback, useEffect } from 'react';
-import type { Dispatch, JSX, RefObject } from 'react';
 import dynamic from 'next/dynamic';
 
 import { Canvas } from '@react-three/fiber';
 import { Leva } from 'leva';
+import type { Dispatch, JSX, RefObject } from 'react';
 import { ACESFilmicToneMapping, PCFShadowMap } from 'three';
 
-import { IS_DEV } from '@/constants/common';
 import Experience from '@/components/works/workThreeD/World/Experience';
+import { IS_DEV } from '@/constants/common';
 import s from '@/styles/workThreeD.module.css';
 import { type WorkDetail } from '@/types/api';
 import { type WorkControl } from '@/types/api';
@@ -52,6 +52,7 @@ const World = React.memo(
     viewerStatus,
     currentIndex,
     isCameraReady,
+    canvasSection,
     dispatch,
     portalRef,
     introductionRef,
@@ -98,7 +99,7 @@ const World = React.memo(
               toneMappingExposure: 2,
               outputColorSpace: 'srgb',
             }}
-            className={s.canvas}
+            className={`${s.canvas} ${s[`canvas_${canvasSection}`]}`}
             onCreated={handleCreated}
             onMouseDown={handlePointerDown}
             onTouchStart={handlePointerDown}
@@ -114,6 +115,7 @@ const World = React.memo(
               viewerStatus={viewerStatus}
               currentIndex={currentIndex}
               isCameraReady={isCameraReady}
+              canvasSection={canvasSection}
               dispatch={dispatch}
               portalRef={portalRef}
               introductionRef={introductionRef}
