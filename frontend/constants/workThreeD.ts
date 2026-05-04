@@ -131,7 +131,7 @@ export const WORK_THREE_D_FINGER_PRESS_TEXT =
  * ============================================ */
 
 /**
- * 3Dビュワを開始するトグルボタンのラベル。
+ * 3Dビュワーを開始するトグルボタンのラベル。
  */
 export const WORK_THREE_D_TOGGLE_START_LABEL = 'Start' as const;
 
@@ -220,6 +220,9 @@ export const WORK_WORLD_DOF_PARAMS = {
 /** モデル取得 API のベースパス */
 export const WORK_WORLD_MODEL_API_BASE_PATH = '/api/supabase/model/' as const;
 
+/** Development only local GLB path for camera workflow checks. */
+export const WORK_WORLD_DEV_MODEL_PATH = '/test/models/rc_plane.glb' as const;
+
 /** Room モデルのパス */
 export const WORK_WORLD_ROOM_MODEL_PATH =
   '/models/gltf/work_world_room.glb' as const;
@@ -262,13 +265,13 @@ export const REVERSE_COMPLETE_DURATION = 2 as const;
 /** セクション ScrollTrigger スクラブ係数 */
 export const SECTION_ANIMATION_SCRUB = 0.7 as const;
 
-/** セクション補間アニメーショの時間 (秒) */
+/** セクション補間アニメーションの時間 (秒) */
 export const SECTION_ANIMATION_DURATION = 0.7 as const;
 
 /** Controls カメラ移動アニメーションの時間 (秒) */
 export const CONTROLS_ANIMATION_DURATION = 2 as const;
 
-/** Controls カメラ位置アニメーショの遅延 (秒) */
+/** Controls カメラ位置アニメーションの遅延 (秒) */
 export const CONTROLS_ANIMATION_DELAY = 0.5 as const;
 
 /** ビュワーモード開始時のカメラアニメーション時間 (秒) */

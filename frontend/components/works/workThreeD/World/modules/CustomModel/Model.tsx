@@ -3,10 +3,9 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import type { Dispatch, JSX, SetStateAction } from 'react';
-
 import type {
   AnimationAction,
- AnimationClip,
+  AnimationClip,
   Group,
   Mesh,
   Object3D,
@@ -16,6 +15,7 @@ import { AnimationMixer, FrontSide, LoopOnce } from 'three';
 import { DRACO_DECODER_PATH } from '@/constants/common';
 import {
   WORK_WORLD_ANIMATION_NAME_REGEX,
+  WORK_WORLD_DEV_MODEL_PATH,
   WORK_WORLD_FLOOR_PLANE_REGEX,
   WORK_WORLD_MODEL_API_BASE_PATH,
 } from '@/constants/workThreeD';
@@ -38,7 +38,7 @@ type Props = {
   /** 現在選択中のコントロールインデックス */
   currentIndex: number;
 
-  /** カメアニメーション完了フラグ（true: 完了済み → モデルアニメーション再生可） */
+  /** カメラアニメーション完了フラグ（true: 完了済み → モデルアニメーション再生可） */
   isCameraReady: boolean;
 };
 
@@ -80,11 +80,13 @@ const Model = React.memo(
     /** Group オブジェクトの参照 Ref */
     const groupRef = useRef<Group | null>(null);
 
-    /** useGLTF でモデルをプロキシ経由で読み込む（Storage URL をクライアントに公開しない） */
-    const gltf = useGLTF(
-      `${WORK_WORLD_MODEL_API_BASE_PATH}${content.key}`,
-      true,
-    );
+    const modelPath =
+      process.env.NODE_ENV === 'development'
+        ? WORK_WORLD_DEV_MODEL_PATH
+        : `${WORK_WORLD_MODEL_API_BASE_PATH}${content.key}`;
+
+    /** useGLTF でモデルを読み込む。dev では public/test/models の検証用 GLB を使う。 */
+    const gltf = useGLTF(modelPath, true);
 
     /** アニメーションを更新 */
     useFrame((_, delta) => {
@@ -96,7 +98,7 @@ const Model = React.memo(
     useEffect(() => {
       if (process.env.NODE_ENV !== 'development') return;
 
-      console.group(`[GLB DEBUG] key=${content.key}`);
+      console.group(`[GLB DEBUG] key=${content.key} model=${modelPath}`);
 
       console.group('▼ アニメーションクリップ一覧');
       gltf.animations.forEach((clip: AnimationClip) => console.log(clip.name));
@@ -115,7 +117,7 @@ const Model = React.memo(
       console.groupEnd();
 
       console.groupEnd();
-    }, [gltf, content.key, content.controls]);
+    }, [gltf, content.key, content.controls, modelPath]);
 
     /**
      * GLB シーン内 Cam_Sec3_<n> カメラ名を走査して
